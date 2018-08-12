@@ -1,0 +1,25 @@
+
+html, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#canvas-container {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* TODO remember to attribute https://freetypography.com/2018/06/19/free-font-lulu-monospace/ */
+@font-face {
+    font-family: "LuluMono";
+    src: url("LuluMonospace-Regular.otf");
+}
