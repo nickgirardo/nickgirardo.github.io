@@ -311,6 +311,16 @@ class Arena {
     this.targetRadius = Math.min(this.targetRadius + amount, this.maxRadius);
   }
 
+  // Collecting soul increases the size of the arena
+  // The amount scales inversely with the size of the arena
+  // This makes it a bit easier to come back after taking hits
+  collectSoul() {
+    const baseAmount = 0.0006;
+    const radiusDiff = this.maxRadius - this.targetRadius;
+    console.log(baseAmount + radiusDiff/600);
+    this.increase(baseAmount + radiusDiff/600);
+  }
+
 }
 
 
@@ -979,7 +989,7 @@ class Manager {
 
   collectSoul(player, soul) {
     this.incScore(this.level);
-    this.arena.increase(0.0008);
+    this.arena.collectSoul();
   }
 
   // If the first enemy hits the player we need to spawn a new enemy
