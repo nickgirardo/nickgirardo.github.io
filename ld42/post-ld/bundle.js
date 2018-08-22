@@ -317,7 +317,6 @@ class Arena {
   collectSoul() {
     const baseAmount = 0.0006;
     const radiusDiff = this.maxRadius - this.targetRadius;
-    console.log(baseAmount + radiusDiff/600);
     this.increase(baseAmount + radiusDiff/600);
   }
 
@@ -811,9 +810,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ui_flashText_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ui/flashText.js */ "./src/entities/ui/flashText.js");
 /* harmony import */ var _ui_gameOverText_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ui/gameOverText.js */ "./src/entities/ui/gameOverText.js");
 /* harmony import */ var _sfx_enemyBullet_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./sfx/enemyBullet.js */ "./src/entities/sfx/enemyBullet.js");
-/* harmony import */ var _sfx_friendlyBullet_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./sfx/friendlyBullet.js */ "./src/entities/sfx/friendlyBullet.js");
-/* harmony import */ var _sfx_levelUp_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./sfx/levelUp.js */ "./src/entities/sfx/levelUp.js");
-/* harmony import */ var _sfx_shipDestroy_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./sfx/shipDestroy.js */ "./src/entities/sfx/shipDestroy.js");
+/* harmony import */ var _sfx_enemyHit_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./sfx/enemyHit.js */ "./src/entities/sfx/enemyHit.js");
+/* harmony import */ var _sfx_friendlyBullet_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./sfx/friendlyBullet.js */ "./src/entities/sfx/friendlyBullet.js");
+/* harmony import */ var _sfx_playerHit_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./sfx/playerHit.js */ "./src/entities/sfx/playerHit.js");
+/* harmony import */ var _sfx_levelUp_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./sfx/levelUp.js */ "./src/entities/sfx/levelUp.js");
+/* harmony import */ var _sfx_gameOver_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./sfx/gameOver.js */ "./src/entities/sfx/gameOver.js");
 
 
 
@@ -838,6 +839,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
 class Manager {
   constructor(canvas, newGame) {
     this.canvas = canvas;
@@ -850,9 +853,11 @@ class Manager {
     ];
 
     this.enemyBulletSfx = new _sfx_enemyBullet_js__WEBPACK_IMPORTED_MODULE_12__["default"]();
-    this.friendlyBulletSfx = new _sfx_friendlyBullet_js__WEBPACK_IMPORTED_MODULE_13__["default"]();
-    this.levelUpSfx = new _sfx_levelUp_js__WEBPACK_IMPORTED_MODULE_14__["default"]();
-    this.shipDestroySfx = new _sfx_shipDestroy_js__WEBPACK_IMPORTED_MODULE_15__["default"]();
+    this.friendlyBulletSfx = new _sfx_friendlyBullet_js__WEBPACK_IMPORTED_MODULE_14__["default"]();
+    this.enemyHitSfx = new _sfx_enemyHit_js__WEBPACK_IMPORTED_MODULE_13__["default"]();
+    this.playerHitSfx = new _sfx_playerHit_js__WEBPACK_IMPORTED_MODULE_15__["default"]();
+    this.levelUpSfx = new _sfx_levelUp_js__WEBPACK_IMPORTED_MODULE_16__["default"]();
+    this.gameOverSfx = new _sfx_gameOver_js__WEBPACK_IMPORTED_MODULE_17__["default"]();
 
     const firstEnemy = this.spawnEnemy("BasicEnemy");
     firstEnemy.firstEnemy = true;
@@ -945,7 +950,7 @@ class Manager {
       this.scene.push(new _soul_js__WEBPACK_IMPORTED_MODULE_5__["default"](this, this.player, entity.center));
     }
 
-    this.shipDestroySfx.play();
+    this.enemyHitSfx.play();
 
     this.destroy(entity);
   }
@@ -984,6 +989,7 @@ class Manager {
   // Damage dealt to the player is represented by arena shrinking
   // The only way the player loses is if he leaves the arena
   damagePlayer(player, enemy) {
+    this.playerHitSfx.play();
     this.arena.reduce(enemy.strength);
   }
 
@@ -1023,6 +1029,7 @@ class Manager {
 
     this.isGameOver = true;
     this.scene.push(new _ui_gameOverText_js__WEBPACK_IMPORTED_MODULE_11__["default"](this));
+    this.gameOverSfx.play();
     
     this.scene.filter(e=>typeof e.cleanUp === "function").forEach(e=>e.cleanUp());
     
@@ -1179,35 +1186,44 @@ class Player {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EnemyBulletSFX; });
+/* harmony import */ var _sfx_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../sfx.js */ "./src/sfx.js");
 
 
-class EnemyBulletSFX {
+class EnemyBulletSFX extends _sfx_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor() {
-    this.sfxArray = [
+    super([
       "sfx/EnemyBullet1.wav",
       "sfx/EnemyBullet2.wav",
       "sfx/EnemyBullet3.wav",
       "sfx/EnemyBullet4.wav",
-      "sfx/EnemyBullet1.wav",
-      "sfx/EnemyBullet2.wav",
-      "sfx/EnemyBullet3.wav",
-      "sfx/EnemyBullet4.wav",
-    ].map(path => {
-      const sfx = new Audio(path);
-      sfx.volume = 0.32;
-      sfx.load();
-      return sfx;
-    });
-
-    this.current = 0;
+    ], 8);
   }
+}
 
-  play() {
-    if(this.sfxArray[this.current].currentTime == 0 || this.sfxArray[this.current].ended) {
-			this.sfxArray[this.current].play();
-		}
-		this.current++;
-    this.current %= this.sfxArray.length;
+
+/***/ }),
+
+/***/ "./src/entities/sfx/enemyHit.js":
+/*!**************************************!*\
+  !*** ./src/entities/sfx/enemyHit.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EnemyHitSFX; });
+/* harmony import */ var _sfx_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../sfx.js */ "./src/sfx.js");
+
+
+class EnemyHitSFX extends _sfx_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor() {
+    super([
+      "sfx/EnemyHit1.wav",
+      "sfx/EnemyHit2.wav",
+      "sfx/EnemyHit3.wav",
+      "sfx/EnemyHit4.wav",
+    ], 8);
   }
 }
 
@@ -1224,35 +1240,41 @@ class EnemyBulletSFX {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return FriendlyBulletSFX; });
+/* harmony import */ var _sfx_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../sfx.js */ "./src/sfx.js");
 
 
-class FriendlyBulletSFX {
+class FriendlyBulletSFX extends _sfx_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor() {
-    this.sfxArray = [
+    super([
       "sfx/FriendlyBullet1.wav",
       "sfx/FriendlyBullet2.wav",
       "sfx/FriendlyBullet3.wav",
       "sfx/FriendlyBullet4.wav",
-      "sfx/FriendlyBullet1.wav",
-      "sfx/FriendlyBullet2.wav",
-      "sfx/FriendlyBullet3.wav",
-      "sfx/FriendlyBullet4.wav",
-    ].map(path => {
-      const sfx = new Audio(path);
-      sfx.volume = 0.32;
-      sfx.load();
-      return sfx;
-    });
-
-    this.current = 0;
+    ], 8);
   }
+}
 
-  play() {
-    if(this.sfxArray[this.current].currentTime == 0 || this.sfxArray[this.current].ended) {
-			this.sfxArray[this.current].play();
-		}
-		this.current++;
-    this.current %= this.sfxArray.length;
+
+/***/ }),
+
+/***/ "./src/entities/sfx/gameOver.js":
+/*!**************************************!*\
+  !*** ./src/entities/sfx/gameOver.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return GameOverSFX; });
+/* harmony import */ var _sfx_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../sfx.js */ "./src/sfx.js");
+
+
+class GameOverSFX extends _sfx_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor() {
+    super([
+      "sfx/GameOver.wav",
+    ]);
   }
 }
 
@@ -1269,76 +1291,41 @@ class FriendlyBulletSFX {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return LevelUpSFX; });
+/* harmony import */ var _sfx_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../sfx.js */ "./src/sfx.js");
 
 
-class LevelUpSFX {
+class LevelUpSFX extends _sfx_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor() {
-    this.sfxArray = [
+    super([
       "sfx/LevelUp.wav",
-      "sfx/LevelUp.wav",
-      "sfx/LevelUp.wav",
-      "sfx/LevelUp.wav",
-    ].map(path => {
-      const sfx = new Audio(path);
-      sfx.volume = 0.32;
-      sfx.load();
-      return sfx;
-    });
-
-    this.current = 0;
-  }
-
-  play() {
-    if(this.sfxArray[this.current].currentTime == 0 || this.sfxArray[this.current].ended) {
-			this.sfxArray[this.current].play();
-		}
-		this.current++;
-    this.current %= this.sfxArray.length;
+    ]);
   }
 }
 
 
 /***/ }),
 
-/***/ "./src/entities/sfx/shipDestroy.js":
-/*!*****************************************!*\
-  !*** ./src/entities/sfx/shipDestroy.js ***!
-  \*****************************************/
+/***/ "./src/entities/sfx/playerHit.js":
+/*!***************************************!*\
+  !*** ./src/entities/sfx/playerHit.js ***!
+  \***************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ShipDestroySFX; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return PlayerHitSFX; });
+/* harmony import */ var _sfx_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../sfx.js */ "./src/sfx.js");
 
 
-class ShipDestroySFX {
+class PlayerHitSFX extends _sfx_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor() {
-    this.sfxArray = [
-      "sfx/GameOver1.wav",
-      "sfx/GameOver2.wav",
-      "sfx/GameOver3.wav",
-      "sfx/GameOver4.wav",
-      "sfx/GameOver1.wav",
-      "sfx/GameOver2.wav",
-      "sfx/GameOver3.wav",
-      "sfx/GameOver4.wav",
-    ].map(path => {
-      const sfx = new Audio(path);
-      sfx.volume = 0.36;
-      sfx.load();
-      return sfx;
-    });
-
-    this.current = 0;
-  }
-
-  play() {
-    if(this.sfxArray[this.current].currentTime == 0 || this.sfxArray[this.current].ended) {
-			this.sfxArray[this.current].play();
-		}
-		this.current++;
-    this.current %= this.sfxArray.length;
+    super([
+      "sfx/PlayerHit1.wav",
+      "sfx/PlayerHit2.wav",
+      "sfx/PlayerHit3.wav",
+      "sfx/PlayerHit4.wav",
+    ], 8);
   }
 }
 
@@ -1584,6 +1571,50 @@ function keyup(e) {
 
   keys[key] = false;
   timestampsUp[key] = Date.now();
+}
+
+
+/***/ }),
+
+/***/ "./src/sfx.js":
+/*!********************!*\
+  !*** ./src/sfx.js ***!
+  \********************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SFX; });
+
+class SFX {
+  constructor(paths, numSounds = paths.length) {
+
+    // In case we want more sounds to be playable at once
+    // than the amound of paths given, this adds more tracks
+    // as requested by numSounds param
+    for(let i=0; numSounds > paths.length; i++) {
+      paths.push(paths[i]);
+    }
+
+    this.sfxArray = paths.map(path => {
+      const sfx = new Audio(path);
+      sfx.volume = 0.32;
+      sfx.load();
+      return sfx;
+    });
+
+    this.current = 0;
+  }
+
+  play() {
+    if(this.sfxArray[this.current].currentTime == 0 || this.sfxArray[this.current].ended) {
+			this.sfxArray[this.current].play();
+		}
+		this.current++;
+    this.current %= this.sfxArray.length;
+  }
+
 }
 
 
